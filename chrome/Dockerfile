@@ -12,6 +12,7 @@ FROM python:3.10.1-slim-bullseye as builder
 WORKDIR /build
 
 # Common dependencies
+RUN sed -i s@/deb.debian.org/@/repo.huaweicloud.com/@g /etc/apt/sources.list && apt clean
 RUN apt-get update && \
     apt-get install -y git ninja-build cmake curl zlib1g-dev
 
@@ -137,7 +138,8 @@ RUN chmod +x out/curl_*
 
 # Create a final, minimal image with the compiled binaries
 # only.
-FROM debian:bullseye-slim
+FROM python:3.10.9-slim-bullseye
+RUN sed -i s@/deb.debian.org/@/repo.huaweicloud.com/@g /etc/apt/sources.list && apt clean
 RUN apt-get update && apt-get install -y ca-certificates
 # Copy curl-impersonate from the builder image
 COPY --from=builder /build/install /usr/local
